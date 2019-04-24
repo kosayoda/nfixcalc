@@ -40,7 +40,6 @@ def infix_postfix(equation: List[str]) -> List[str]:
 
     Returns:
         A postfix notation equation
-
     """
     stack = []
     postfix = []
@@ -66,14 +65,13 @@ def infix_postfix(equation: List[str]) -> List[str]:
 
 def postfix_infix(equation: List[str]) -> List[str]:
     """
-    Converts an postfix notation equation to infix notation
+    Converts a postfix notation equation to infix notation
 
     Args:
-        equation: An postfix notation equation
+        equation: A postfix notation equation
 
     Returns:
         A infix notation equation
-
     """
     stack = []
     for token in equation:
@@ -85,3 +83,43 @@ def postfix_infix(equation: List[str]) -> List[str]:
 
     result = stack.pop().strip("()")  # Trim outer brackets
     return result.split()
+
+
+def prefix_postfix(equation: List[str]) -> List[str]:
+    """
+    Converts a prefix notation equation to postfix notation
+
+    Args:
+        equation: A prefix notation equation
+
+    Returns:
+        A postfix notation equation
+    """
+    stack = []
+    for token in reversed(equation):
+        if is_number(token):
+            stack.append(token)
+        else:
+            operand_1, operand_2 = stack.pop(), stack.pop()
+            stack.append(f"{operand_1} {operand_2} {token}")
+    return stack.pop().split()
+
+
+def postfix_prefix(equation: List[str]) -> List[str]:
+    """
+    Converts a postfix notation equation to prefix notation
+
+    Args:
+        equation: A postfix notation equation
+
+    Returns:
+        A prefix notation equation
+    """
+    stack = []
+    for token in equation:
+        if is_number(token):
+            stack.append(token)
+        else:
+            operand_1, operand_2 = stack.pop(), stack.pop()
+            stack.append(f"{token} {operand_2} {operand_1}")
+    return stack.pop().split()
