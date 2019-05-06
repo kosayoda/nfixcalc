@@ -185,3 +185,24 @@ def calc_infix(equation: List[str]) -> float:
     while operator_stack:
         process()
     return operand_stack.pop()
+
+
+def calc_prefix(equation: List[str]) -> float:
+    """
+    Evaluates a prefix equation and returns the result
+
+    Args:
+        equation: A prefix notation equation
+
+    Returns:
+        The result of the equation
+    """
+    stack = []
+    for token in reversed(equation):
+        if is_number(token):
+            stack.append(float(token))
+        else:
+            operand_1, operand_2 = stack.pop(), stack.pop()
+            solution = OP_FUNC[token](operand_1, operand_2)
+            stack.append(solution)
+    return stack.pop()

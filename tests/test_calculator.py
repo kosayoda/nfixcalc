@@ -2,7 +2,7 @@ import pytest
 from nfixcalc.calculator import (
     infix_postfix, postfix_infix,
     prefix_postfix, postfix_prefix,
-    calc_postfix, calc_infix
+    calc_prefix, calc_infix, calc_postfix
 )
 
 prefixes = [
@@ -56,3 +56,8 @@ def test_calc_postfix():
 def test_calc_infix():
     for infix, result in zip(infixes, results):
         assert calc_infix(infix.split()) == pytest.approx(result)
+
+
+def test_calc_prefix():
+    for prefix, result in zip(prefixes, results):
+        assert calc_prefix(prefix.split()) == pytest.approx(result)
