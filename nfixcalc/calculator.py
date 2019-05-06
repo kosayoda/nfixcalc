@@ -123,3 +123,65 @@ def postfix_prefix(equation: List[str]) -> List[str]:
             operand_1, operand_2 = stack.pop(), stack.pop()
             stack.append(f"{token} {operand_2} {operand_1}")
     return stack.pop().split()
+
+
+def calc_postfix(equation: List[str]) -> float:
+    """
+    Evaluates a postfix equation and returns the result
+
+    Args:
+        equation: A postfix notation equation
+
+    Returns:
+        The result of the equation
+    """
+    stack = []
+    for token in equation:
+        if is_number(token):
+            stack.append(float(token))
+        else:
+            operand_2, operand_1 = stack.pop(), stack.pop()
+            solution = OP_FUNC[token](operand_1, operand_2)
+            stack.append(solution)
+    return stack.pop()
+
+
+def calc_infix(equation: List[str]) -> float:
+    """
+    Evaluates an infix equation and returns the result
+
+    Args:
+        equation: An infix notation equation
+
+    Returns:
+        The result of the equation
+    """
+    operator_stack = []
+    operand_stack = []
+
+    def process():
+        nonlocal operator_stack, operand_stack
+        operand_2, operand_1 = operand_stack.pop(), operand_stack.pop()
+        operator = operator_stack.pop()
+        result = OP_FUNC[operator](operand_1, operand_2)
+        operand_stack.append(result)
+
+    for token in equation:
+        if is_number(token):
+            operand_stack.append(float(token))
+        elif token in OP_FUNC:
+            if operator_stack and OP_PREC[token] >= OP_PREC[operator_stack[-1]]:
+                operator_stack.append(token)
+            elif not operator_stack:
+                operator_stack.append(token)
+        elif token == "(":
+            operator_stack.append(token)
+        elif token == ")":
+            while operator_stack[-1] != "(":
+                process()
+            operator_stack.pop()
+        else:
+            process()
+    while operator_stack:
+        process()
+    return operand_stack.pop()
