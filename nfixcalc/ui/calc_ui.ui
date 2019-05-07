@@ -84,7 +84,7 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QGridLayout" name="gridLayout_2">
+      <layout class="QGridLayout" name="gridlayout">
        <item row="0" column="0">
         <widget class="QPushButton" name="key_ac">
          <property name="sizePolicy">
@@ -436,7 +436,7 @@
         </widget>
        </item>
        <item row="4" column="3">
-        <widget class="QPushButton" name="key_enter_lparen">
+        <widget class="QPushButton" name="key_extra1">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -449,7 +449,7 @@
         </widget>
        </item>
        <item row="4" column="4">
-        <widget class="QPushButton" name="key_check_rparen">
+        <widget class="QPushButton" name="key_extra2">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
            <horstretch>0</horstretch>
