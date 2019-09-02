@@ -16,13 +16,7 @@ OP_PREC = {"^": 4, "%": 4, "*": 3, "/": 3, "+": 2, "-": 2, "(": 1}
 
 def is_number(string: str) -> bool:
     """
-    Checks if a given string is a real number
-
-    Args:
-        string: The string to be checked
-
-    Returns:
-        True if the string is a real number, False otherwise
+    Checks if a given string is a real number.
     """
     try:
         float(string)
@@ -33,13 +27,7 @@ def is_number(string: str) -> bool:
 
 def infix_postfix(equation: List[str]) -> List[str]:
     """
-    Converts an infix notation equation to postfix notation
-
-    Args:
-        equation: An infix notation equation
-
-    Returns:
-        A postfix notation equation
+    Converts an infix notation equation to postfix notation.
     """
     stack = []
     postfix = []
@@ -65,13 +53,7 @@ def infix_postfix(equation: List[str]) -> List[str]:
 
 def postfix_infix(equation: List[str]) -> List[str]:
     """
-    Converts a postfix notation equation to infix notation
-
-    Args:
-        equation: A postfix notation equation
-
-    Returns:
-        A infix notation equation
+    Converts a postfix notation equation to infix notation.
     """
     stack = []
     for token in equation:
@@ -87,13 +69,7 @@ def postfix_infix(equation: List[str]) -> List[str]:
 
 def prefix_postfix(equation: List[str]) -> List[str]:
     """
-    Converts a prefix notation equation to postfix notation
-
-    Args:
-        equation: A prefix notation equation
-
-    Returns:
-        A postfix notation equation
+    Converts a prefix notation equation to postfix notation.
     """
     stack = []
     for token in reversed(equation):
@@ -107,13 +83,7 @@ def prefix_postfix(equation: List[str]) -> List[str]:
 
 def postfix_prefix(equation: List[str]) -> List[str]:
     """
-    Converts a postfix notation equation to prefix notation
-
-    Args:
-        equation: A postfix notation equation
-
-    Returns:
-        A prefix notation equation
+    Converts a postfix notation equation to prefix notation.
     """
     stack = []
     for token in equation:
@@ -127,13 +97,7 @@ def postfix_prefix(equation: List[str]) -> List[str]:
 
 def calc_postfix(equation: List[str]) -> float:
     """
-    Evaluates a postfix equation and returns the result
-
-    Args:
-        equation: A postfix notation equation
-
-    Returns:
-        The result of the equation
+    Evaluates a postfix equation and returns the result.
     """
     stack = []
     for token in equation:
@@ -148,13 +112,7 @@ def calc_postfix(equation: List[str]) -> float:
 
 def calc_infix(equation: List[str]) -> float:
     """
-    Evaluates an infix equation and returns the result
-
-    Args:
-        equation: An infix notation equation
-
-    Returns:
-        The result of the equation
+    Evaluates an infix equation and returns the result.
     """
     operator_stack = []
     operand_stack = []
@@ -189,13 +147,7 @@ def calc_infix(equation: List[str]) -> float:
 
 def calc_prefix(equation: List[str]) -> float:
     """
-    Evaluates a prefix equation and returns the result
-
-    Args:
-        equation: A prefix notation equation
-
-    Returns:
-        The result of the equation
+    Evaluates a prefix equation and returns the result.
     """
     stack = []
     for token in reversed(equation):

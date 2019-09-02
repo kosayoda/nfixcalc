@@ -1,8 +1,8 @@
 import pytest
 from nfixcalc.calculator import (
+    calc_infix, calc_postfix, calc_prefix,
     infix_postfix, postfix_infix,
-    prefix_postfix, postfix_prefix,
-    calc_prefix, calc_infix, calc_postfix
+    postfix_prefix, prefix_postfix,
 )
 
 prefixes = [

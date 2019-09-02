@@ -5,24 +5,18 @@ from nfixcalc.calculator import OPERATORS
 
 class Buffer:
     """
-    Buffer class to store and handle tokens in the current equation
+    Buffer class to store and handle tokens in the current equation.
 
-    Attributes:
-        equation: List of tokens
-            Example: ["12.3", "+", "-6"]
-        temp: List of characters in an incomplete token
-            Example: ["1", "5", ".", "2", "6"]
+    `equation` is the list of tokens to be evaluated.
+    `temp` is a list of characters in an incomplete token.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self._equation: List[str] = []
         self.temp: List[str] = []
 
-    def add(self, token: str):
+    def add(self, token: str) -> None:
         """
-        Adds a token to the current equation
-
-        Args:
-            token: The token to add to the equation
+        Adds a token to the current equation.
         """
         # Operators mean that the current number is finished, therefore we can
         # flush the buffer. If not, the next token may still be the subsequent
@@ -33,9 +27,9 @@ class Buffer:
         else:
             self.temp.append(token)
 
-    def delete(self):
+    def delete(self) -> None:
         """
-        Removes the last character in the current equation
+        Removes the last character in the current equation.
         """
         # Characters in `temp` can simply be removed.
         # Since `equation` is a list of tokens, we need to get the last entered
@@ -47,25 +41,24 @@ class Buffer:
             if len(val) > 1:
                 self.temp.append(val[:-1])
 
-    def flush(self):
+    def flush(self) -> None:
         """
-        Joins the current token in `temp` and adds it to the equation
+        Joins the current token in `temp` and adds it to the equation.
         """
         if self.temp:
             self._equation.append("".join(self.temp))
             self.temp.clear()
 
-    def clear(self):
+    def clear(self) -> None:
         """
-        Clears all buffers in the system
+        Clears all buffers in the system.
         """
         self._equation.clear()
         self.temp.clear()
 
-    def invert_sign(self):
+    def invert_sign(self) -> None:
         """
-        Change the sign of the last entered number from positive to negative
-        and vice versa
+        Toggles the sign of the last entered number.
         """
         if self.temp:
             if self.temp[0] == "-":
@@ -82,12 +75,18 @@ class Buffer:
             self._equation.append(val)
 
     @property
-    def equation(self):
+    def equation(self) -> List[str]:
+        """
+        Flushes the temporary buffer and returns the final equation.
+        """
         self.flush()
         return self._equation
 
     @property
-    def equation_label(self):
+    def equation_label(self) -> str:
+        """
+        Returns current equation and buffer equation in a readable form.
+        """
         display = ""
         if self._equation:
             display += f"{' '.join(self._equation)} "

@@ -5,13 +5,15 @@ from itertools import cycle
 
 import qdarkstyle
 from PySide2.QtWidgets import QApplication, QDesktopWidget, QMainWindow
-
 from nfixcalc import calculator
 from nfixcalc import ui
 from nfixcalc.buffer import Buffer
 
 
 class Mode(Enum):
+    """
+    Different calculator modes.
+    """
     INFIX = 0
     PREFIX = 1
     POSTFIX = 2
@@ -21,6 +23,9 @@ class Mode(Enum):
 
     @property
     def key_text(self):
+        """
+        Text to be displayed on the GUI button.
+        """
         if self is Mode.INFIX:
             return "(", ")"
         else:
@@ -28,6 +33,9 @@ class Mode(Enum):
 
 
 class MainApplication(QMainWindow):
+    """
+    Main GUI class.
+    """
     def __init__(self):
         super().__init__()
 
@@ -54,7 +62,7 @@ class MainApplication(QMainWindow):
 
     def bind_buttons(self):
         """
-        Binds buttons to their respective functions
+        Binds buttons to their respective functions.
         """
         # Numbers, period and operator keys
         for key in self.ui.tokens.buttons():
@@ -78,10 +86,16 @@ class MainApplication(QMainWindow):
             key.clicked.connect(self.update)
 
     def update(self):
+        """
+        Updates label and screen.
+        """
         self.ui.info_label.setText(self.buffer.equation_label)
         self.ui.screen.display(self.result)
 
     def cycle_mode(self):
+        """
+        Cycles between the modes Infix, Postfix and Prefix.
+        """
         self.mode = next(self.modes)
 
         text_1, text_2 = self.mode.key_text
@@ -91,6 +105,9 @@ class MainApplication(QMainWindow):
         self.ui.statusbar.showMessage(f"Mode: {self.mode}")
 
     def ex_clicked(self, key):
+        """
+        Handler for extra buttons.
+        """
         if self.mode is Mode.INFIX:
             self.buffer.add(self.mode.key_text[key])
         else:
@@ -101,6 +118,9 @@ class MainApplication(QMainWindow):
             func[key]()
 
     def calculate(self, mode, equation):
+        """
+        Solves the current equation.
+        """
         mode_function = {
             Mode.PREFIX: calculator.calc_prefix,
             Mode.INFIX: calculator.calc_infix,
@@ -119,7 +139,10 @@ class MainApplication(QMainWindow):
         return self.result
 
 
-def main():
+def main() -> None:
+    """
+    Function to run the GUI calculator.
+    """
     app = QApplication(sys.argv)
     app.setApplicationName("nfixcalculator")
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyside2())
