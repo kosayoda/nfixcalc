@@ -1,0 +1,4 @@
+[flake8]
+exclude =
+    ./nfixcalc/ui
+max-complexity = 10

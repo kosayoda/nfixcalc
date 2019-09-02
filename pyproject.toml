@@ -11,10 +11,12 @@ qdarkstyle = "^2.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
+flake8 = "^3.7"
+flake8-import-order = "^0.18.1"
 
+[tool.poetry.scripts]
+nfixcalc = 'nfixcalc.gui:main'
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
-[tool.poetry.scripts]
-nfixcalc = 'nfixcalc.gui:main'
