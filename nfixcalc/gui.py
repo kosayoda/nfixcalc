@@ -24,7 +24,7 @@ class Mode(Enum):
         if self is Mode.INFIX:
             return "(", ")"
         else:
-            return "Enter ↑", "Check Equation"
+            return "Enter ↑", ""
 
 
 class MainApplication(QMainWindow):
@@ -92,11 +92,11 @@ class MainApplication(QMainWindow):
 
     def ex_clicked(self, key):
         if self.mode is Mode.INFIX:
-            self.buffer.add(self.mode.text[key])
+            self.buffer.add(self.mode.key_text[key])
         else:
             func = {
                 0: self.buffer.flush,
-                1: self.check_equation,
+                1: lambda: None,
             }
             func[key]()
 
@@ -117,9 +117,6 @@ class MainApplication(QMainWindow):
                 f"Error: Division by zero"
             )
         return self.result
-
-    def check_equation(self):
-        pass
 
 
 def main():
