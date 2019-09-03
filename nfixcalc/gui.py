@@ -48,7 +48,7 @@ class MainApplication(QMainWindow):
 
         # Special function keys
         self.ui.key_sign.clicked.connect(self.buffer.invert_sign)
-        self.ui.key_ac.clicked.connect(self.buffer.clear)
+        self.ui.key_ac.clicked.connect(self.clear)
         self.ui.key_del.clicked.connect(self.buffer.delete)
         self.ui.key_mode.clicked.connect(self.cycle_mode)
         self.ui.key_solve.clicked.connect(
@@ -114,6 +114,13 @@ class MainApplication(QMainWindow):
                 f"Error: Division by zero"
             )
         return self.result
+
+    def clear(self) -> None:
+        """
+        Clears the buffer and the screen.
+        """
+        self.buffer.clear()
+        self.result = 0
 
 
 def main() -> None:
