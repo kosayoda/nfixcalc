@@ -1,35 +1,11 @@
 import sys
-from enum import Enum
 from functools import partial
 from itertools import cycle
 
 import qdarkstyle
 from PySide2.QtWidgets import QApplication, QDesktopWidget, QMainWindow
-from nfixcalc import calculator
-from nfixcalc import ui
+from nfixcalc import Mode, calculator, ui
 from nfixcalc.buffer import Buffer
-
-
-class Mode(Enum):
-    """
-    Different calculator modes.
-    """
-    INFIX = 0
-    PREFIX = 1
-    POSTFIX = 2
-
-    def __str__(self):
-        return self.name.title()
-
-    @property
-    def key_text(self):
-        """
-        Text to be displayed on the GUI button.
-        """
-        if self is Mode.INFIX:
-            return "(", ")"
-        else:
-            return "Enter ↑", ""
 
 
 class MainApplication(QMainWindow):
