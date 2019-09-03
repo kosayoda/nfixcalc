@@ -1,6 +1,7 @@
 import sys
 from functools import partial
 from itertools import cycle
+from typing import List
 
 import qdarkstyle
 from PySide2.QtWidgets import QApplication, QDesktopWidget, QMainWindow
@@ -12,7 +13,7 @@ class MainApplication(QMainWindow):
     """
     Main GUI class.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.ui = ui.MainWindow()
@@ -27,7 +28,7 @@ class MainApplication(QMainWindow):
 
         self.bind_buttons()
 
-    def center(self):
+    def center(self) -> None:
         """
         Centers application to screen.
         """
@@ -36,7 +37,7 @@ class MainApplication(QMainWindow):
         frame.moveCenter(screen_center)
         self.move(frame.topLeft())
 
-    def bind_buttons(self):
+    def bind_buttons(self) -> None:
         """
         Binds buttons to their respective functions.
         """
@@ -61,14 +62,14 @@ class MainApplication(QMainWindow):
         for key in (layout.itemAt(i).widget() for i in range(layout.count())):
             key.clicked.connect(self.update)
 
-    def update(self):
+    def update(self) -> None:
         """
         Updates label and screen.
         """
         self.ui.info_label.setText(self.buffer.equation_label)
         self.ui.screen.display(self.result)
 
-    def cycle_mode(self):
+    def cycle_mode(self) -> None:
         """
         Cycles between the modes Infix, Postfix and Prefix.
         """
@@ -80,7 +81,7 @@ class MainApplication(QMainWindow):
 
         self.ui.statusbar.showMessage(f"Mode: {self.mode}")
 
-    def ex_clicked(self, key):
+    def ex_clicked(self, key: str) -> None:
         """
         Handler for extra buttons.
         """
@@ -93,7 +94,7 @@ class MainApplication(QMainWindow):
             }
             func[key]()
 
-    def calculate(self, mode, equation):
+    def calculate(self, mode: Mode, equation: List[str]) -> float:
         """
         Solves the current equation.
         """

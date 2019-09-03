@@ -11,11 +11,11 @@ class Mode(Enum):
     PREFIX = 1
     POSTFIX = 2
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name.title()
 
     @property
-    def key_text(self):
+    def key_text(self) -> str:
         """
         Text to be displayed on the GUI button.
         """
