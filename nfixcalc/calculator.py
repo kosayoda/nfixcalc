@@ -128,18 +128,16 @@ def calc_infix(equation: List[str]) -> float:
         if is_number(token):
             operand_stack.append(float(token))
         elif token in OP_FUNC:
-            if operator_stack and OP_PREC[token] >= OP_PREC[operator_stack[-1]]:
-                operator_stack.append(token)
-            elif not operator_stack:
-                operator_stack.append(token)
+            if operator_stack:
+                while operator_stack and OP_PREC[operator_stack[-1]] >= OP_PREC[token]:
+                    process()
+            operator_stack.append(token)
         elif token == "(":
             operator_stack.append(token)
         elif token == ")":
             while operator_stack[-1] != "(":
                 process()
             operator_stack.pop()
-        else:
-            process()
     while operator_stack:
         process()
     return operand_stack.pop()
