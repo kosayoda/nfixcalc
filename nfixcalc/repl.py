@@ -2,7 +2,7 @@ import cmd
 from typing import List
 
 from nfixcalc import Mode
-from nfixcalc.calculator import calc_infix, calc_postfix, calc_prefix
+from nfixcalc.calculator import OPERATORS, calc_infix, calc_postfix, calc_prefix
 
 
 class InvalidEquationError(Exception):
@@ -21,12 +21,13 @@ class Repl(cmd.Cmd):
     """
     A class for Read-Evaluate-Print-Loop equation solving functionality.
     """
-    intro = "Help: help | Current mode: Infix"
+    intro = "Welcome to nfixcalc, eternally version 0.1.0"
     prompt = ">>> "
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.mode = Mode.INFIX
+        Repl.echo_info(self.mode)
 
     def default(self, line) -> None:
         """
@@ -42,10 +43,13 @@ class Repl(cmd.Cmd):
         else:
             print(result)
 
-    def do_mode(self, mode) -> None:
+    def do_mode(self, mode: str) -> None:
         """
         Switch modes based on input.
         """
+        if not mode:
+            Repl.echo_info(self.mode)
+            return
         modes = {
             "Infix": Mode.INFIX,
             "Postfix": Mode.POSTFIX,
@@ -56,7 +60,7 @@ class Repl(cmd.Cmd):
         except KeyError:
             print(f"Invalid mode! Modes: {', '.join(modes.keys())}")
         else:
-            print(f"Help: help | Current mode: {self.mode}")
+            Repl.echo_info(self.mode)
 
     def calculate(self, tokens: List[str]) -> float:
         """
@@ -73,6 +77,10 @@ class Repl(cmd.Cmd):
             return modes[self.mode](tokens)
         except Exception:
             raise InvalidEquationError(self.mode, " ".join(tokens))
+
+    @staticmethod
+    def echo_info(mode: Mode) -> None:
+        print(f"Help: help | Current mode: {mode} | Available operators: {' '.join(OPERATORS)}")
 
 
 def main():
