@@ -58,9 +58,20 @@ class Repl(cmd.Cmd):
         try:
             self.mode = modes[mode.title()]
         except KeyError:
-            print(f"Invalid mode! Modes: {', '.join(modes.keys())}")
+            print("Invalid mode! Modes: Infix, Postfix, Prefix")
         else:
             Repl.echo_info(self.mode)
+
+    def help_mode(self) -> None:
+        """
+        Help command for the `mode` command.
+        """
+        help_string = (
+            "\n-- Help: mode --\n"
+            "Switches the mode of the calculator.\n"
+            "Available modes: Infix, Postfix, Prefix\n"
+        )
+        print(help_string)
 
     def calculate(self, tokens: List[str]) -> float:
         """
