@@ -1,4 +1,5 @@
 import cmd
+import sys
 from typing import List
 
 from nfixcalc import Mode
@@ -89,13 +90,37 @@ class Repl(cmd.Cmd):
         except Exception:
             raise InvalidEquationError(self.mode, " ".join(tokens))
 
+    def do_exit(self) -> None:
+        """
+        Exits the application cleanly.
+        """
+        print("\nThanks for using nfixcalc!")
+        sys.exit(0)
+
+    def help_exit(self) -> None:
+        """
+        Help command for the `exit` command.
+        """
+        help_string = (
+            "\n-- Help: exit --\n"
+            "Exits the calculator.\n"
+        )
+        print(help_string)
+
     @staticmethod
     def echo_info(mode: Mode) -> None:
+        """
+        Echoes the current mode and available operators to the screen.
+        """
         print(f"Help: help | Current mode: {mode} | Available operators: {' '.join(OPERATORS)}")
 
 
-def main():
+def main() -> None:
     """
     Function to run the REPL calculator.
     """
-    Repl().cmdloop()
+    try:
+        repl = Repl()
+        repl.cmdloop()
+    except KeyboardInterrupt:
+        repl.do_exit()
