@@ -48,6 +48,9 @@ class Repl(cmd.Cmd):
 
         Solves the input line as if a regular equation.
         """
+        if line == "EOF":
+            self.do_exit()
+
         tokens = line.split()
         try:
             result = self.calculate(tokens)
@@ -100,7 +103,6 @@ class Repl(cmd.Cmd):
         }
         try:
             return modes[self.mode](tokens)
-
         except Exception:
             raise InvalidEquationError(self.mode, " ".join(tokens))
 
