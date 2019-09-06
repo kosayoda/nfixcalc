@@ -67,6 +67,9 @@ class MainApplication(QMainWindow):
         Updates label and screen.
         """
         self.ui.info_label.setText(self.buffer.equation_label)
+
+        self.result_len = len(str(self.result))
+        self.ui.screen.setDigitCount(max(self.result_len, 5))
         self.ui.screen.display(self.result)
 
     def cycle_mode(self) -> None:
