@@ -41,10 +41,18 @@ class Repl(cmd.Cmd):
         "Usage:\n"
         "    1. Make sure the correct mode is centered, see: help mode\n"
         "    2. Enter an equation to be evaluated. All tokens **must** be space delimited.\n"
+        "    3. Optional: Assign result of an equation to a single letter variable.\n"
+        "                 Variables can be used in expressions but are not saved upon exit.\n"
+        "                 Allowed variables: a-z, A-Z\n"
         "Available Operators:\n"
         f"    {' '.join(OPERATORS)}\n"
         "Example:\n"
-        "    [ Infix ] ( 5 + 6 ) * 4\n\n"
+        "    [ Infix ] a = ( 5 + 6 ) * 4\n"
+        "    44.0\n"
+        "    [ Infix ] b = 5 / 2\n"
+        "    2.5\n"
+        "    [ Infix ] a = a + b\n"
+        "    46.5\n\n"
         "== Available Commands =="
     )
 
@@ -139,7 +147,8 @@ class Repl(cmd.Cmd):
         except Exception:
             raise InvalidEquationError(self.mode, " ".join(tokens))
 
-    def do_exit(self) -> None:
+    # The catch-all args is because I have no idea what keeps passing a positional argument
+    def do_exit(self, *_) -> None:
         """
         Exits the application cleanly.
         """
