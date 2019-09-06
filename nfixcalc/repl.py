@@ -148,6 +148,24 @@ class Repl(cmd.Cmd):
             raise InvalidEquationError(self.mode, " ".join(tokens))
 
     # The catch-all args is because I have no idea what keeps passing a positional argument
+    def do_clear(self, *_) -> None:
+        """
+        Clears any variables present in the session.
+        """
+        self.variables = {}
+        print("-- Variables cleared --")
+
+    def help_clear(self) -> None:
+        """
+        Help command for the `clear` command.
+        """
+        help_string = (
+            "\n-- Help: clear --\n"
+            "Clears any variables in the session. Note: There is no confirmation\n"
+        )
+        print(help_string)
+
+    # The catch-all args is because I have no idea what keeps passing a positional argument
     def do_exit(self, *_) -> None:
         """
         Exits the application cleanly.
