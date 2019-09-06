@@ -18,6 +18,17 @@ class InvalidEquationError(Exception):
         return f"Invalid Equation for mode {self.mode}: {self.message}"
 
 
+class InvalidVariableError(Exception):
+    """
+    Exception class for an invalid variable.
+    """
+    def __init__(self, variable) -> None:
+        self.variable = variable
+
+    def __str__(self) -> str:
+        return f"Invalid Variable: {self.variable}"
+
+
 class Repl(cmd.Cmd):
     """
     A class for Read-Evaluate-Print-Loop equation solving functionality.
@@ -42,19 +53,21 @@ class Repl(cmd.Cmd):
         self.mode = Mode.INFIX
         Repl.echo_info(self.mode)
 
+        self.variables = {}
+
     def default(self, line) -> None:
         """
         The default action when no command is given.
 
         Solves the input line as if a regular equation.
+        Exits if the `cmdloop` passes "EOF".
         """
         if line == "EOF":
             self.do_exit()
 
-        tokens = line.split()
         try:
-            result = self.calculate(tokens)
-        except InvalidEquationError as error:
+            result = self.calculate(line.strip())
+        except (InvalidEquationError, InvalidVariableError) as error:
             print(error)
         else:
             print(result)
@@ -90,9 +103,12 @@ class Repl(cmd.Cmd):
         )
         print(help_string)
 
-    def calculate(self, tokens: List[str]) -> float:
+    def calculate(self, tokens: str) -> float:
         """
         Solves an equation based on the current mode.
+
+        If the equation contains an assignment to a valid variable,
+        saves the result of the equation to that variable.
 
         Raises InvalidEquationError if there was an error parsing the equation.
         """
@@ -102,7 +118,24 @@ class Repl(cmd.Cmd):
             Mode.PREFIX: calc_prefix,
         }
         try:
-            return modes[self.mode](tokens)
+            variable, eq, tokens = tokens.rpartition("=")
+            variable = variable.strip()
+            tokens = self.filter_variables(tokens)
+
+            result = modes[self.mode](tokens)
+
+            # `=` present but no variable is given on the left
+            if eq and not variable:
+                raise InvalidVariableError(variable)
+            # Valid variables: a-z, A-Z
+            elif variable.isalpha():
+                # Only single-letter variables
+                if len(variable) != 1:
+                    raise InvalidVariableError(variable)
+                self.variables[variable] = str(result)
+            return result
+        except InvalidVariableError:
+            raise
         except Exception:
             raise InvalidEquationError(self.mode, " ".join(tokens))
 
@@ -129,6 +162,18 @@ class Repl(cmd.Cmd):
         Echoes the current mode and available operators to the screen.
         """
         print(f"Help: help | Current mode: {mode} | Available operators: {' '.join(OPERATORS)}")
+
+    def filter_variables(self, tokens: str) -> List[str]:
+        """
+        Replaces any variables a-Z in the string with the stored value.
+
+        Returns the token itself otherwise.
+        """
+        return [
+            self.variables.get(token, token)
+            if token.isalpha() else token
+            for token in tokens.split()
+        ]
 
 
 def main() -> None:
