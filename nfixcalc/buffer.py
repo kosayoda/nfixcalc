@@ -15,9 +15,7 @@ class Buffer:
         self.temp: List[str] = []
 
     def add(self, token: str) -> None:
-        """
-        Adds a token to the current equation.
-        """
+        """Adds a token to the current equation."""
         # Operators mean that the current number is finished, therefore we can
         # flush the buffer. If not, the next token may still be the subsequent
         # character in a number.
@@ -28,9 +26,7 @@ class Buffer:
             self.temp.append(token)
 
     def delete(self) -> None:
-        """
-        Removes the last character in the current equation.
-        """
+        """Removes the last character in the current equation."""
         # Characters in `temp` can simply be removed.
         # Since `equation` is a list of tokens, we need to get the last entered
         # token to remove the last character.
@@ -42,24 +38,18 @@ class Buffer:
                 self.temp.append(val[:-1])
 
     def flush(self) -> None:
-        """
-        Joins the current token in `temp` and adds it to the equation.
-        """
+        """Joins the current token in `temp` and adds it to the equation."""
         if self.temp:
             self._equation.append("".join(self.temp))
             self.temp.clear()
 
     def clear(self) -> None:
-        """
-        Clears all buffers in the system.
-        """
+        """Clears all buffers in the system."""
         self._equation.clear()
         self.temp.clear()
 
     def invert_sign(self) -> None:
-        """
-        Toggles the sign of the last entered number.
-        """
+        """Toggles the sign of the last entered number."""
         if self.temp:
             if self.temp[0] == "-":
                 self.temp.pop(0)
@@ -76,17 +66,13 @@ class Buffer:
 
     @property
     def equation(self) -> List[str]:
-        """
-        Flushes the temporary buffer and returns the final equation.
-        """
+        """Flushes the temporary buffer and returns the final equation."""
         self.flush()
         return self._equation
 
     @property
     def equation_label(self) -> str:
-        """
-        Returns current equation and buffer equation in a readable form.
-        """
+        """Returns current equation and buffer equation in a readable form."""
         display = ""
         if self._equation:
             display += f"{' '.join(self._equation)} "

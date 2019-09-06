@@ -7,9 +7,7 @@ from nfixcalc.calculator import OPERATORS, calc_infix, calc_postfix, calc_prefix
 
 
 class InvalidEquationError(Exception):
-    """
-    Exception class for an error when solving an equation.
-    """
+    """Exception class for an error when solving an equation."""
     def __init__(self, mode, message) -> None:
         self.mode = mode
         self.message = message
@@ -19,9 +17,7 @@ class InvalidEquationError(Exception):
 
 
 class InvalidVariableError(Exception):
-    """
-    Exception class for an invalid variable.
-    """
+    """Exception class for an invalid variable."""
     def __init__(self, variable) -> None:
         self.variable = variable
 
@@ -30,9 +26,7 @@ class InvalidVariableError(Exception):
 
 
 class Repl(cmd.Cmd):
-    """
-    A class for Read-Evaluate-Print-Loop equation solving functionality.
-    """
+    """A class for Read-Evaluate-Print-Loop equation solving functionality."""
     intro = "Welcome to nfixcalc, eternally version 0.1.0\n"
     prompt = "[ Infix ] "
     ruler = ""
@@ -81,9 +75,7 @@ class Repl(cmd.Cmd):
             print(result)
 
     def do_mode(self, mode: str) -> None:
-        """
-        Switch modes based on input.
-        """
+        """Switch modes based on input."""
         if not mode:
             print(f"-- Current mode: {self.mode} --")
             return
@@ -101,9 +93,7 @@ class Repl(cmd.Cmd):
             print(f"-- Current mode: {self.mode} --")
 
     def help_mode(self) -> None:
-        """
-        Help command for the `mode` command.
-        """
+        """Help command for the `mode` command."""
         help_string = (
             "\n-- Help: mode --\n"
             "Switches the mode of the calculator.\n"
@@ -149,16 +139,12 @@ class Repl(cmd.Cmd):
 
     # The catch-all args is because I have no idea what keeps passing a positional argument
     def do_clear(self, *_) -> None:
-        """
-        Clears any variables present in the session.
-        """
+        """Clears any variables present in the session."""
         self.variables = {}
         print("-- Variables cleared --")
 
     def help_clear(self) -> None:
-        """
-        Help command for the `clear` command.
-        """
+        """Help command for the `clear` command."""
         help_string = (
             "\n-- Help: clear --\n"
             "Clears any variables in the session. Note: There is no confirmation\n"
@@ -167,16 +153,12 @@ class Repl(cmd.Cmd):
 
     # The catch-all args is because I have no idea what keeps passing a positional argument
     def do_exit(self, *_) -> None:
-        """
-        Exits the application cleanly.
-        """
+        """Exits the application cleanly."""
         print("\nThanks for using nfixcalc!")
         sys.exit(0)
 
     def help_exit(self) -> None:
-        """
-        Help command for the `exit` command.
-        """
+        """Help command for the `exit` command."""
         help_string = (
             "\n-- Help: exit --\n"
             "Exits the calculator.\n"
@@ -185,9 +167,7 @@ class Repl(cmd.Cmd):
 
     @staticmethod
     def echo_info(mode: Mode) -> None:
-        """
-        Echoes the current mode and available operators to the screen.
-        """
+        """"Echoes the current mode and available operators to the screen"""
         print(f"Help: help | Current mode: {mode} | Available operators: {' '.join(OPERATORS)}")
 
     def filter_variables(self, tokens: str) -> List[str]:
@@ -204,9 +184,7 @@ class Repl(cmd.Cmd):
 
 
 def main() -> None:
-    """
-    Function to run the REPL calculator.
-    """
+    """Function to run the REPL calculator."""
     try:
         repl = Repl()
         repl.cmdloop()

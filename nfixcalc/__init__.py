@@ -4,9 +4,7 @@ __version__ = '0.1.0'
 
 
 class Mode(Enum):
-    """
-    Different calculator modes.
-    """
+    """Different calculator modes."""
     INFIX = 0
     PREFIX = 1
     POSTFIX = 2
@@ -16,9 +14,7 @@ class Mode(Enum):
 
     @property
     def key_text(self) -> str:
-        """
-        Text to be displayed on the GUI button.
-        """
+        """Text to be displayed on the GUI button."""
         if self is Mode.INFIX:
             return "(", ")"
         else:

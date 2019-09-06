@@ -10,9 +10,7 @@ from nfixcalc.buffer import Buffer
 
 
 class MainApplication(QMainWindow):
-    """
-    Main GUI class.
-    """
+    """Main GUI class."""
     def __init__(self) -> None:
         super().__init__()
 
@@ -29,18 +27,14 @@ class MainApplication(QMainWindow):
         self.bind_buttons()
 
     def center(self) -> None:
-        """
-        Centers application to screen.
-        """
+        """Centers application to screen."""
         frame = self.frameGeometry()
         screen_center = QDesktopWidget().availableGeometry().center()
         frame.moveCenter(screen_center)
         self.move(frame.topLeft())
 
     def bind_buttons(self) -> None:
-        """
-        Binds buttons to their respective functions.
-        """
+        """Binds buttons to their respective functions."""
         # Numbers, period and operator keys
         for key in self.ui.tokens.buttons():
             key_name = key.text()
@@ -63,9 +57,7 @@ class MainApplication(QMainWindow):
             key.clicked.connect(self.update)
 
     def update(self) -> None:
-        """
-        Updates label and screen.
-        """
+        """Updates label and screen."""
         self.ui.info_label.setText(self.buffer.equation_label)
 
         self.result_len = len(str(self.result))
@@ -73,9 +65,7 @@ class MainApplication(QMainWindow):
         self.ui.screen.display(self.result)
 
     def cycle_mode(self) -> None:
-        """
-        Cycles between the modes Infix, Postfix and Prefix.
-        """
+        """Cycles between the modes Infix, Postfix and Prefix."""
         self.mode = next(self.modes)
 
         text_1, text_2 = self.mode.key_text
@@ -85,9 +75,7 @@ class MainApplication(QMainWindow):
         self.ui.statusbar.showMessage(f"Mode: {self.mode}")
 
     def ex_clicked(self, key: str) -> None:
-        """
-        Handler for extra buttons.
-        """
+        """Handler for extra buttons."""
         if self.mode is Mode.INFIX:
             self.buffer.add(self.mode.key_text[key])
         else:
@@ -98,9 +86,7 @@ class MainApplication(QMainWindow):
             func[key]()
 
     def calculate(self, mode: Mode, equation: List[str]) -> float:
-        """
-        Solves the current equation.
-        """
+        """Solves the current equation."""
         mode_function = {
             Mode.PREFIX: calculator.calc_prefix,
             Mode.INFIX: calculator.calc_infix,
@@ -119,17 +105,13 @@ class MainApplication(QMainWindow):
         return self.result
 
     def clear(self) -> None:
-        """
-        Clears the buffer and the screen.
-        """
+        """Clears the buffer and the screen."""
         self.buffer.clear()
         self.result = 0
 
 
 def main() -> None:
-    """
-    Function to run the GUI calculator.
-    """
+    """Function to run the GUI calculator."""
     app = QApplication(sys.argv)
     app.setApplicationName("nfixcalculator")
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyside2())
