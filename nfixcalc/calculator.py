@@ -5,13 +5,14 @@ OP_FUNC = {
     "^": operator.pow,
     "%": operator.mod,
     "*": operator.mul,
+    "//": operator.floordiv,
     "/": operator.truediv,
     "+": operator.add,
     "-": operator.sub,
 }
 
 OPERATORS = list(OP_FUNC) + ["(", ")"]
-OP_PREC = {"^": 4, "%": 4, "*": 3, "/": 3, "+": 2, "-": 2, "(": 1}
+OP_PREC = {"^": 4, "%": 4, "*": 3, "/": 3, "//": 3, "+": 2, "-": 2, "(": 1}
 
 
 def is_number(string: str) -> bool:
