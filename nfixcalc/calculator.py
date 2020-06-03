@@ -1,5 +1,5 @@
 import operator
-from typing import List
+from typing import List, Union
 
 OP_FUNC = {
     "^": operator.pow,
@@ -86,7 +86,7 @@ def postfix_prefix(equation: List[str]) -> List[str]:
     return stack.pop().split()
 
 
-def calc_postfix(equation: List[str]) -> float:
+def calc_postfix(equation: List[str]) -> Union[float, int]:
     """Evaluates a postfix equation and returns the result."""
     stack = []
     for token in equation:
@@ -96,7 +96,12 @@ def calc_postfix(equation: List[str]) -> float:
             operand_2, operand_1 = stack.pop(), stack.pop()
             solution = OP_FUNC[token](operand_1, operand_2)
             stack.append(solution)
-    return stack.pop()
+    result = stack.pop()
+
+    if result.is_integer():
+        return int(result)
+
+    return result
 
 
 def calc_infix(equation: List[str]) -> float:
@@ -127,7 +132,13 @@ def calc_infix(equation: List[str]) -> float:
             operator_stack.pop()
     while operator_stack:
         process()
-    return operand_stack.pop()
+
+    result = operand_stack.pop()
+
+    if result.is_integer():
+        return int(result)
+
+    return result
 
 
 def calc_prefix(equation: List[str]) -> float:
@@ -140,4 +151,9 @@ def calc_prefix(equation: List[str]) -> float:
             operand_1, operand_2 = stack.pop(), stack.pop()
             solution = OP_FUNC[token](operand_1, operand_2)
             stack.append(solution)
-    return stack.pop()
+    result = stack.pop()
+
+    if result.is_integer():
+        return int(result)
+
+    return result
