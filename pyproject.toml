@@ -5,9 +5,9 @@ description = ""
 authors = ["kosayoda <kieransiek@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-PySide2 = "^5.12"
-qdarkstyle = "^2.6"
+python = "3.8"
+PySide2 = "^5.15"
+qdarkstyle = "^2.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
