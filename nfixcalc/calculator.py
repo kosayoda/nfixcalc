@@ -11,7 +11,7 @@ OP_FUNC = {
     "-": operator.sub,
 }
 
-OPERATORS = list(OP_FUNC) + ["(", ")"]
+OPERATORS = set(OP_FUNC) | {"(", ")"}
 OP_PREC = {"^": 4, "%": 4, "*": 3, "/": 3, "//": 3, "+": 2, "-": 2, "(": 1}
 
 
@@ -29,22 +29,44 @@ def infix_postfix(equation: List[str]) -> List[str]:
     stack = []
     postfix = []
 
+    last_token = ""
+
     for token in equation:
         if is_number(token):
+            # One number after another is invalid infix
+            if is_number(last_token):
+                raise ValueError
+
             postfix.append(token)
+
         elif token == "(":
             stack.append(token)
+
         elif token == ")":
             top_token = stack.pop()
             while top_token != "(":
                 postfix.append(top_token)
                 top_token = stack.pop()
-        else:
+
+        elif token in OP_FUNC:
+            # One operator after another is invalid infix
+            if last_token in OP_FUNC:
+                raise ValueError
+
             while stack and OP_PREC[stack[-1]] >= OP_PREC[token]:
                 postfix.append(stack.pop())
+
             stack.append(token)
+        else:
+            raise ValueError
+
+        last_token = token
+
     while stack:
-        postfix.append(stack.pop())
+        token = stack.pop()
+        if token == "(" or token == ")":
+            raise ValueError
+        postfix.append(token)
     return postfix
 
 
@@ -96,7 +118,13 @@ def calc_postfix(equation: List[str]) -> Union[float, int]:
             operand_2, operand_1 = stack.pop(), stack.pop()
             solution = OP_FUNC[token](operand_1, operand_2)
             stack.append(solution)
-    result = stack.pop()
+
+    # The equation is invalid if after the calculation, there is still more
+    # than one token on the stack
+    if len(stack) > 1:
+        raise ValueError
+    else:
+        result = stack.pop()
 
     if result.is_integer():
         return int(result)
@@ -105,40 +133,9 @@ def calc_postfix(equation: List[str]) -> Union[float, int]:
 
 
 def calc_infix(equation: List[str]) -> float:
-    """Evaluates an infix equation and returns the result."""
-    operator_stack = []
-    operand_stack = []
-
-    def process():
-        nonlocal operator_stack, operand_stack
-        operand_2, operand_1 = operand_stack.pop(), operand_stack.pop()
-        operator = operator_stack.pop()
-        result = OP_FUNC[operator](operand_1, operand_2)
-        operand_stack.append(result)
-
-    for token in equation:
-        if is_number(token):
-            operand_stack.append(float(token))
-        elif token in OP_FUNC:
-            if operator_stack:
-                while operator_stack and OP_PREC[operator_stack[-1]] >= OP_PREC[token]:
-                    process()
-            operator_stack.append(token)
-        elif token == "(":
-            operator_stack.append(token)
-        elif token == ")":
-            while operator_stack[-1] != "(":
-                process()
-            operator_stack.pop()
-    while operator_stack:
-        process()
-
-    result = operand_stack.pop()
-
-    if result.is_integer():
-        return int(result)
-
-    return result
+    """Evaluates a infix equation and returns the result."""
+    postfix = infix_postfix(equation)
+    return calc_postfix(postfix)
 
 
 def calc_prefix(equation: List[str]) -> float:
@@ -151,7 +148,13 @@ def calc_prefix(equation: List[str]) -> float:
             operand_1, operand_2 = stack.pop(), stack.pop()
             solution = OP_FUNC[token](operand_1, operand_2)
             stack.append(solution)
-    result = stack.pop()
+
+    # The equation is invalid if after the calculation, there is still more
+    # than one token on the stack
+    if len(stack) > 1:
+        raise ValueError
+    else:
+        result = stack.pop()
 
     if result.is_integer():
         return int(result)
