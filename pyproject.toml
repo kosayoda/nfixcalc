@@ -17,7 +17,7 @@ flake8-import-order = "^0.18.1"
 [tool.poetry.scripts]
 gui = 'nfixcalc.gui:main'
 repl = 'nfixcalc.repl:main'
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
-
