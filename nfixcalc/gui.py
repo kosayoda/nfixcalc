@@ -5,6 +5,7 @@ from typing import List
 
 import qdarkstyle
 from PySide2.QtWidgets import QApplication, QDesktopWidget, QMainWindow
+from PySide2.QtCore import QCoreApplication
 from nfixcalc import Mode, calculator, ui
 from nfixcalc.buffer import Buffer
 
@@ -25,6 +26,7 @@ class MainApplication(QMainWindow):
         self.cycle_mode()
 
         self.bind_buttons()
+        self.update_shortcuts()
 
     def center(self) -> None:
         """Centers application to screen."""
@@ -56,6 +58,23 @@ class MainApplication(QMainWindow):
         for key in (layout.itemAt(i).widget() for i in range(layout.count())):
             key.clicked.connect(self.update)
 
+    def update_shortcuts(self) -> None:
+        """
+        Setup keyboard shortcuts for UI buttons.
+
+        Most regular keybindings are set in QT Designer, however the Extra1 and Extra2
+        keys differ based on the current mode, so it is determined here.
+        """
+        mode_shortcuts = {
+            Mode.INFIX: ("(", ")"),
+            Mode.POSTFIX: ("End", ""),
+            Mode.PREFIX: ("End", ""),
+        }
+        shortcut_1, shortcut_2 = mode_shortcuts[self.mode]
+        self.ui.key_extra1.setShortcut(QCoreApplication.translate("MainWindow", shortcut_1))
+        self.ui.key_extra2.setShortcut(QCoreApplication.translate("MainWindow", shortcut_2))
+
+
     def update(self) -> None:
         """Updates label and screen."""
         self.ui.info_label.setText(self.buffer.equation_label)
@@ -68,13 +87,17 @@ class MainApplication(QMainWindow):
         """Cycles between the modes Infix, Postfix and Prefix."""
         self.mode = next(self.modes)
 
+        # Update key text
         text_1, text_2 = self.mode.key_text
         self.ui.key_extra1.setText(text_1)
         self.ui.key_extra2.setText(text_2)
 
+        # Update key shortcuts
+        self.update_shortcuts()
+
         self.ui.statusbar.showMessage(f"Mode: {self.mode}")
 
-    def ex_clicked(self, key: str) -> None:
+    def ex_clicked(self, key: int) -> None:
         """Handler for extra buttons."""
         if self.mode is Mode.INFIX:
             self.buffer.add(self.mode.key_text[key])

@@ -13,7 +13,7 @@ class Mode(Enum):
         return self.name.title()
 
     @property
-    def key_text(self) -> str:
+    def key_text(self) -> tuple[str, str]:
         """Text to be displayed on the GUI button."""
         if self is Mode.INFIX:
             return "(", ")"
