@@ -35,7 +35,7 @@ class Repl(cmd.Cmd):
         "== Help ==\n"
         "Usage:\n"
         "    1. Make sure the correct mode is selected, see: help mode\n"
-        "    2. Enter an equation to be evaluated."
+        "    2. Enter an equation to be evaluated.\n"
         "    3. Optional: Assign result of an equation to a single letter variable.\n"
         "                 Variables can be used in expressions but are not saved upon exit.\n"
         "                 Allowed variables: a-z, A-Z\n"
@@ -75,14 +75,14 @@ class Repl(cmd.Cmd):
         try:
             result = self.calculate(line.strip())
         except (InvalidEquationError, InvalidVariableError) as error:
-            print(error)
+            self.display(error)
         else:
-            print(result)
+            self.display(result)
 
     def do_mode(self, mode: str) -> None:
         """Switch modes based on input."""
         if not mode:
-            print(f"-- Current mode: {self.mode} --")
+            self.display(f"-- Current mode: {self.mode} --")
             return
         modes = {
             "Infix": Mode.INFIX,
@@ -93,9 +93,9 @@ class Repl(cmd.Cmd):
             self.mode = modes[mode.title()]
             Repl.prompt = f"[{self.mode:^7}] "
         except KeyError:
-            print("Invalid mode! Modes: Infix, Postfix, Prefix")
+            self.display("Invalid mode! Modes: Infix, Postfix, Prefix")
         else:
-            print(f"-- Current mode: {self.mode} --")
+            self.display(f"-- Current mode: {self.mode} --")
 
     def help_mode(self) -> None:
         """Help command for the `mode` command."""
@@ -104,7 +104,7 @@ class Repl(cmd.Cmd):
             "Switches the mode of the calculator.\n"
             "Available modes: Infix, Postfix, Prefix\n"
         )
-        print(help_string)
+        self.display(help_string)
 
     def calculate(self, tokens: str) -> float:
         """
@@ -146,7 +146,7 @@ class Repl(cmd.Cmd):
     def do_clear(self, *_) -> None:
         """Clears any variables present in the session."""
         self.variables = {}
-        print("-- Variables cleared --")
+        self.display("-- Variables cleared --")
 
     def help_clear(self) -> None:
         """Help command for the `clear` command."""
@@ -154,12 +154,12 @@ class Repl(cmd.Cmd):
             "\n-- Help: clear --\n"
             "Clears any variables in the session. Note: There is no confirmation\n"
         )
-        print(help_string)
+        self.display(help_string)
 
     # The catch-all args is because I have no idea what keeps passing a positional argument
     def do_exit(self, *_) -> None:
         """Exits the application cleanly."""
-        print("\nThanks for using nfixcalc!")
+        self.display("\nThanks for using nfixcalc!")
         sys.exit(0)
 
     def help_exit(self) -> None:
@@ -168,12 +168,17 @@ class Repl(cmd.Cmd):
             "\n-- Help: exit --\n"
             "Exits the calculator.\n"
         )
-        print(help_string)
+        self.display(help_string)
 
     @staticmethod
     def echo_info(mode: Mode) -> None:
         """"Echoes the current mode and available operators to the screen"""
-        print(f"Help: help | Current mode: {mode} | Available operators: {' '.join(OPERATORS)}")
+        Repl.display(f"Help: help | Current mode: {mode} | Available operators: {' '.join(OPERATORS)}")
+
+    @staticmethod
+    def display(*args, **kwargs) -> None:
+        """Display the given text on the screen."""
+        print(*args, **kwargs)
 
     def filter_variables(self, tokens: str) -> List[str]:
         """
