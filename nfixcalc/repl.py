@@ -119,8 +119,8 @@ class Repl(cmd.Cmd):
                     raise InvalidVariableError(variable)
                 self.variables[variable] = str(result)
             return result
-        except InvalidVariableError:
-            raise
+        except InvalidVariableError as e:
+            raise e
         except Exception:
             raise InvalidEquationError(self.mode, " ".join(tokens))
 
