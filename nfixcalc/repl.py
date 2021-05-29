@@ -1,4 +1,5 @@
 import cmd
+import re
 import sys
 from typing import List
 
@@ -33,8 +34,8 @@ class Repl(cmd.Cmd):
     doc_header = (
         "== Help ==\n"
         "Usage:\n"
-        "    1. Make sure the correct mode is centered, see: help mode\n"
-        "    2. Enter an equation to be evaluated. All tokens **must** be space delimited.\n"
+        "    1. Make sure the correct mode is selected, see: help mode\n"
+        "    2. Enter an equation to be evaluated."
         "    3. Optional: Assign result of an equation to a single letter variable.\n"
         "                 Variables can be used in expressions but are not saved upon exit.\n"
         "                 Allowed variables: a-z, A-Z\n"
@@ -56,6 +57,10 @@ class Repl(cmd.Cmd):
         Repl.echo_info(self.mode)
 
         self.variables = {}
+        self.EQUATION_RE = re.compile(
+            # TODO: Dynamic equation regex depending on available operators
+            r"\d+(?:\.\d+)?|[+\-*^()]|[\/]{1,2}|[A-z]+"
+        )
 
     def default(self, line) -> None:
         """
@@ -118,9 +123,9 @@ class Repl(cmd.Cmd):
         try:
             variable, eq, tokens = tokens.rpartition("=")
             variable = variable.strip()
-            tokens = self.filter_variables(tokens)
+            token_list = self.filter_variables(tokens)
 
-            result = modes[self.mode](tokens)
+            result = modes[self.mode](token_list)
 
             # `=` present but no variable is given on the left
             if eq and not variable:
@@ -179,7 +184,7 @@ class Repl(cmd.Cmd):
         return [
             self.variables.get(token, token)
             if token.isalpha() else token
-            for token in tokens.split()
+            for token in self.EQUATION_RE.findall(tokens)
         ]
 
 
