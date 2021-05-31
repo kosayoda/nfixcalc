@@ -1,5 +1,3 @@
-from typing import List
-
 from nfixcalc.calculator import OPERATORS
 
 
@@ -11,8 +9,8 @@ class Buffer:
     `temp` is a list of characters in an incomplete token.
     """
     def __init__(self) -> None:
-        self._equation: List[str] = []
-        self.temp: List[str] = []
+        self._equation: list[str] = []
+        self.temp: list[str] = []
 
     def add(self, token: str) -> None:
         """Adds a token to the current equation."""
@@ -65,7 +63,7 @@ class Buffer:
             self._equation.append(val)
 
     @property
-    def equation(self) -> List[str]:
+    def equation(self) -> list[str]:
         """Flushes the temporary buffer and returns the final equation."""
         self.flush()
         return self._equation

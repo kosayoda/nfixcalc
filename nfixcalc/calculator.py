@@ -1,5 +1,5 @@
 import operator
-from typing import List, Union
+from typing import Union
 
 from nfixcalc.errors import InvalidEquationError
 from nfixcalc import Mode
@@ -27,7 +27,7 @@ def is_number(string: str) -> bool:
         return False
 
 
-def infix_postfix(equation: List[str]) -> List[str]:
+def infix_postfix(equation: list[str]) -> list[str]:
     """Converts an infix notation equation to postfix notation."""
     stack = []
     postfix = []
@@ -51,7 +51,7 @@ def infix_postfix(equation: List[str]) -> List[str]:
                     postfix.append(top_token)
                     top_token = stack.pop()
             except IndexError:
-                raise InvalidEquationError(Mode.INFIX, f"Imbalanced number of parenthesis")
+                raise InvalidEquationError(Mode.INFIX, "Imbalanced number of parenthesis")
 
         elif token in OP_FUNC:
             if last_token in OP_FUNC:
@@ -71,12 +71,12 @@ def infix_postfix(equation: List[str]) -> List[str]:
     while stack:
         token = stack.pop()
         if token == "(" or token == ")":
-            raise InvalidEquationError(Mode.INFIX, f"Imbalanced number of parenthesis")
+            raise InvalidEquationError(Mode.INFIX, "Imbalanced number of parenthesis")
         postfix.append(token)
     return postfix
 
 
-def postfix_infix(equation: List[str]) -> List[str]:
+def postfix_infix(equation: list[str]) -> list[str]:
     """Converts a postfix notation equation to infix notation."""
     stack = []
     for token in equation:
@@ -90,7 +90,7 @@ def postfix_infix(equation: List[str]) -> List[str]:
     return result.split()
 
 
-def prefix_postfix(equation: List[str]) -> List[str]:
+def prefix_postfix(equation: list[str]) -> list[str]:
     """Converts a prefix notation equation to postfix notation."""
     stack = []
     for token in reversed(equation):
@@ -102,7 +102,7 @@ def prefix_postfix(equation: List[str]) -> List[str]:
     return stack.pop().split()
 
 
-def postfix_prefix(equation: List[str]) -> List[str]:
+def postfix_prefix(equation: list[str]) -> list[str]:
     """Converts a postfix notation equation to prefix notation."""
     stack = []
     for token in equation:
@@ -114,7 +114,7 @@ def postfix_prefix(equation: List[str]) -> List[str]:
     return stack.pop().split()
 
 
-def calc_postfix(equation: List[str]) -> Union[float, int]:
+def calc_postfix(equation: list[str]) -> Union[float, int]:
     """Evaluates a postfix equation and returns the result."""
     stack = []
     for token in equation:
@@ -128,7 +128,7 @@ def calc_postfix(equation: List[str]) -> Union[float, int]:
     # The equation is invalid if after the calculation, there is still more
     # than one token on the stack
     if len(stack) > 1:
-        raise InvalidEquationError(Mode.POSTFIX, f"Found leftover token(s) after stack evaluation")
+        raise InvalidEquationError(Mode.POSTFIX, "Found leftover token(s) after stack evaluation")
     else:
         result = stack.pop()
 
@@ -138,13 +138,13 @@ def calc_postfix(equation: List[str]) -> Union[float, int]:
     return result
 
 
-def calc_infix(equation: List[str]) -> float:
+def calc_infix(equation: list[str]) -> float:
     """Evaluates a infix equation and returns the result."""
     postfix = infix_postfix(equation)
     return calc_postfix(postfix)
 
 
-def calc_prefix(equation: List[str]) -> float:
+def calc_prefix(equation: list[str]) -> float:
     """Evaluates a prefix equation and returns the result."""
     stack = []
     for token in reversed(equation):
@@ -158,7 +158,7 @@ def calc_prefix(equation: List[str]) -> float:
     # The equation is invalid if after the calculation, there is still more
     # than one token on the stack
     if len(stack) > 1:
-        raise InvalidEquationError(Mode.PREFIX, f"Found leftover token(s) after stack evaluation")
+        raise InvalidEquationError(Mode.PREFIX, "Found leftover token(s) after stack evaluation")
     else:
         result = stack.pop()
 

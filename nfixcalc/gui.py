@@ -1,7 +1,6 @@
 import sys
 from functools import partial
 from itertools import cycle
-from typing import List
 
 import qdarkstyle
 from PySide2.QtWidgets import QApplication, QDesktopWidget, QMainWindow
@@ -74,7 +73,6 @@ class MainApplication(QMainWindow):
         self.ui.key_extra1.setShortcut(QCoreApplication.translate("MainWindow", shortcut_1))
         self.ui.key_extra2.setShortcut(QCoreApplication.translate("MainWindow", shortcut_2))
 
-
     def update(self) -> None:
         """Updates label and screen."""
         self.ui.info_label.setText(self.buffer.equation_label)
@@ -108,7 +106,7 @@ class MainApplication(QMainWindow):
             }
             func[key]()
 
-    def calculate(self, mode: Mode, equation: List[str]) -> float:
+    def calculate(self, mode: Mode, equation: list[str]) -> float:
         """Solves the current equation."""
         mode_function = {
             Mode.PREFIX: calculator.calc_prefix,
@@ -122,9 +120,7 @@ class MainApplication(QMainWindow):
                 f"Error: Invalid equation for mode {self.mode}"
             )
         except ZeroDivisionError:
-            self.ui.statusbar.showMessage(
-                f"Error: Division by zero"
-            )
+            self.ui.statusbar.showMessage("Error: Division by zero")
         return self.result
 
     def clear(self) -> None:
