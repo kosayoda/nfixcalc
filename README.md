@@ -5,7 +5,7 @@ A GUI and REPL calculator for Infix, Postfix and Prefix equations.<br><br>
 
 ## Manual Installation
 ### Requirements
-* Python 3.7
+* Python 3.8
 * [Poetry](https://github.com/sdispater/poetry)
 
 ### Steps
