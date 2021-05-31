@@ -119,10 +119,10 @@ class Repl(cmd.Cmd):
                     raise InvalidVariableError(variable)
                 self.variables[variable] = str(result)
             return result
-        except InvalidVariableError as e:
+        except (InvalidVariableError, InvalidEquationError) as e:
             raise e
         except Exception:
-            raise InvalidEquationError(self.mode, " ".join(tokens))
+            raise InvalidEquationError(self.mode, tokens)
 
     # The catch-all args is because I have no idea what keeps passing a positional argument
     def do_clear(self, *_) -> None:

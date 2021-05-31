@@ -1,6 +1,9 @@
 import operator
 from typing import List, Union
 
+from nfixcalc.errors import InvalidEquationError
+from nfixcalc import Mode
+
 OP_FUNC = {
     "^": operator.pow,
     "%": operator.mod,
@@ -33,9 +36,8 @@ def infix_postfix(equation: List[str]) -> List[str]:
 
     for token in equation:
         if is_number(token):
-            # One number after another is invalid infix
             if is_number(last_token):
-                raise ValueError
+                raise InvalidEquationError(Mode.INFIX, "Found number followed by another number")
 
             postfix.append(token)
 
@@ -43,29 +45,33 @@ def infix_postfix(equation: List[str]) -> List[str]:
             stack.append(token)
 
         elif token == ")":
-            top_token = stack.pop()
-            while top_token != "(":
-                postfix.append(top_token)
+            try:
                 top_token = stack.pop()
+                while top_token != "(":
+                    postfix.append(top_token)
+                    top_token = stack.pop()
+            except IndexError:
+                raise InvalidEquationError(Mode.INFIX, f"Imbalanced number of parenthesis")
 
         elif token in OP_FUNC:
-            # One operator after another is invalid infix
             if last_token in OP_FUNC:
-                raise ValueError
+                raise InvalidEquationError(
+                    Mode.INFIX, "Found operator followed by another operator"
+                )
 
             while stack and OP_PREC[stack[-1]] >= OP_PREC[token]:
                 postfix.append(stack.pop())
 
             stack.append(token)
         else:
-            raise ValueError
+            raise InvalidEquationError(Mode.INFIX, f"Unknown token: {token}")
 
         last_token = token
 
     while stack:
         token = stack.pop()
         if token == "(" or token == ")":
-            raise ValueError
+            raise InvalidEquationError(Mode.INFIX, f"Imbalanced number of parenthesis")
         postfix.append(token)
     return postfix
 
@@ -122,7 +128,7 @@ def calc_postfix(equation: List[str]) -> Union[float, int]:
     # The equation is invalid if after the calculation, there is still more
     # than one token on the stack
     if len(stack) > 1:
-        raise ValueError
+        raise InvalidEquationError(Mode.POSTFIX, f"Found leftover token(s) after stack evaluation")
     else:
         result = stack.pop()
 
@@ -152,7 +158,7 @@ def calc_prefix(equation: List[str]) -> float:
     # The equation is invalid if after the calculation, there is still more
     # than one token on the stack
     if len(stack) > 1:
-        raise ValueError
+        raise InvalidEquationError(Mode.PREFIX, f"Found leftover token(s) after stack evaluation")
     else:
         result = stack.pop()
 
