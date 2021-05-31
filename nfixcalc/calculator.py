@@ -33,13 +33,23 @@ def infix_postfix(equation: list[str]) -> list[str]:
     postfix = []
 
     last_token = ""
+    negate_token = False
 
     for token in equation:
         if is_number(token):
             if is_number(last_token):
                 raise InvalidEquationError(Mode.INFIX, "Found number followed by another number")
 
-            postfix.append(token)
+            # Since we're playing with strings, to negate a number we'd have to do it the ugly
+            # way
+            if negate_token:
+                if token.startswith("-"):
+                    postfix.append(token[1:])
+                else:
+                    postfix.append(f"-{token}")
+                negate_token = False
+            else:
+                postfix.append(token)
 
         elif token == "(":
             stack.append(token)
@@ -55,9 +65,17 @@ def infix_postfix(equation: list[str]) -> list[str]:
 
         elif token in OP_FUNC:
             if last_token in OP_FUNC:
-                raise InvalidEquationError(
-                    Mode.INFIX, "Found operator followed by another operator"
-                )
+                if token not in ("-", "+"):
+                    raise InvalidEquationError(
+                        Mode.INFIX, "Found operator followed by another operator"
+                    )
+                # If we see a dangling minus or plus, we assume that it will be applied to the
+                # next token
+                elif token == "-":
+                    negate_token = True
+                    continue
+                else:
+                    continue
 
             while stack and OP_PREC[stack[-1]] >= OP_PREC[token]:
                 postfix.append(stack.pop())

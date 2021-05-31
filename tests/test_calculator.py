@@ -4,6 +4,7 @@ from nfixcalc.calculator import (
     infix_postfix, postfix_infix,
     postfix_prefix, prefix_postfix,
 )
+from nfixcalc.errors import InvalidEquationError
 
 prefixes = [
     "+ 3 / * 4 5 6",
@@ -61,3 +62,14 @@ def test_calc_infix():
 def test_calc_prefix():
     for prefix, result in zip(prefixes, results):
         assert calc_prefix(prefix.split()) == pytest.approx(result)
+
+
+@pytest.mark.parametrize("equations", ["2 3 +", "4 5", "2 + * 4", "0 * 23 1"])
+def test_invalid_infix_equations_raise_errors(equations):
+    with pytest.raises(InvalidEquationError):
+        calc_infix(equations.split())
+
+
+@pytest.mark.parametrize("equations", ["2 + - 3", "4 - - 5", "2 * - 4", "0 - 23 + - 1"])
+def test_certain_operators_are_repeatable(equations):
+    calc_infix(equations.split())
