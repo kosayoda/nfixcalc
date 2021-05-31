@@ -1,40 +1,24 @@
 import inspect
 import re
 import sys
+import typing as t
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit import print_formatted_text
+from prompt_toolkit.styles import Style
+from prompt_toolkit.output import ColorDepth
+from prompt_toolkit.formatted_text import FormattedText
 
 from nfixcalc import Mode
 from nfixcalc.calculator import OPERATORS, calc_infix, calc_postfix, calc_prefix
 from nfixcalc.errors import InvalidEquationError, InvalidVariableError
+from nfixcalc.utils import COLORS
 
 
 class Repl:
     """A class for Read-Evaluate-Print-Loop equation solving functionality."""
 
-    INFO = "Help: help | Current mode: {mode} | Available operators: {operators}"
-    INTRO = "Welcome to nfixcalc, eternally version 0.1.0\n"
-    HELP_MESSAGE = (
-        "== Help ==\n"
-        "Usage:\n"
-        "    1. Make sure the correct mode is selected, see: help mode\n"
-        "    2. Enter an equation to be evaluated.\n"
-        "    3. Optional: Assign result of an equation to a single letter variable.\n"
-        "                 Variables can be used in expressions but are not saved upon exit.\n"
-        "                 Allowed variables: a-z, A-Z\n"
-        "Available Operators:\n"
-        "    {operators}\n"
-        "Example:\n"
-        "    [ Infix ] a = ( 5 + 6 ) * 4\n"
-        "    44.0\n"
-        "    [ Infix ] b = 5 / 2\n"
-        "    2.5\n"
-        "    [ Infix ] a = a + b\n"
-        "    46.5\n\n"
-        "== Available Commands ==\n"
-        "   {commands}"
-    )
+    STYLE = Style.from_dict(COLORS)
 
     def __init__(self, *args, **kwargs) -> None:
         self.mode = Mode.INFIX
@@ -46,13 +30,18 @@ class Repl:
 
         self.session = PromptSession()
 
-        Repl.display(Repl.INFO.format(mode=self.mode, operators=' '.join(OPERATORS)))
+        Repl.display("Welcome to nfixcalc, eternally version 0.1.0")
+        Repl.display(self.info_string)
 
     def cmdloop(self):
         """The actual REPL."""
         while True:
             try:
-                line = self.session.prompt(message=self.mode_string)
+                line = self.session.prompt(
+                    message=[("class:orange", self.mode_string)],
+                    style=Repl.STYLE,
+                    color_depth=ColorDepth.TRUE_COLOR
+                )
             except EOFError:
                 Repl.exit()
             else:
@@ -69,7 +58,7 @@ class Repl:
         """
         line = line.strip()
         if not line:
-            return "\n"
+            return ""
 
         command, sep, argument = line.partition(" ")
         if command == line and sep == "" and argument == "":  # Separator not found
@@ -82,7 +71,7 @@ class Repl:
         else:
             return command_func(argument)
 
-    def do_help(self, command: str) -> str:
+    def do_help(self, command: str) -> t.Union[str, FormattedText]:
         """Returns the help string for a given command, or for the program."""
         if not command:
             return self.help_string
@@ -97,16 +86,19 @@ class Repl:
             if (documentation := inspect.getdoc(command_func)) is None:
                 return f"Sorry, no help found for command: {command}"
             else:
-                return f"-- Help: {command} --\n{documentation}"
+                return FormattedText([
+                    ("class:blue", f"—  Help: {command} —"),
+                    ("class:white", f"\n{documentation}"),
+                ])
 
-    def do_mode(self, mode: str) -> None:
+    def do_mode(self, mode: str) -> t.Union[str, FormattedText]:
         """
         Switches the mode of the calculator.
         Available modes: Infix, Postfix, Prefix
         """
+        mode_text = FormattedText([("class:blue", f"—  Current mode: {self.mode} —")])
         if not mode:
-            Repl.display(f"-- Current mode: {self.mode} --")
-            return
+            return mode_text
 
         modes = {
             "Infix": Mode.INFIX,
@@ -116,14 +108,14 @@ class Repl:
         try:
             self.mode = modes[mode.title()]
         except KeyError:
-            self.display("Invalid mode! Modes: Infix, Postfix, Prefix")
+            return "Invalid mode! Modes: Infix, Postfix, Prefix"
         else:
-            self.display(f"-- Current mode: {self.mode} --")
+            return mode_text
 
     def do_clear(self, *_) -> None:
         """Clears any variables present in the session."""
         self.variables = {}
-        Repl.display("-- Variables cleared --")
+        Repl.display("-- Variables cleablue --")
 
     def do_exit(self, *_) -> None:
         """Exits the application cleanly."""
@@ -134,9 +126,9 @@ class Repl:
         try:
             result = self._calculate(line)
         except (InvalidEquationError, InvalidVariableError) as error:
-            return str(error)
+            return f">  {error}"
         else:
-            return str(result)
+            return f">  {result}"
 
     def _calculate(self, tokens: str) -> float:
         """
@@ -176,7 +168,7 @@ class Repl:
 
     def filter_variables(self, tokens: str) -> list[str]:
         """
-        Replaces any variables a-Z in the string with the stored value.
+        Replaces any variables a-Z in the string with the stoblue value.
 
         Returns the token itself otherwise.
         """
@@ -187,13 +179,49 @@ class Repl:
         ]
 
     @property
-    def help_string(self) -> str:
-        cmd_list = [
-            func[3:] for func in dir(Repl) if func.startswith("do_")
+    def help_string(self) -> FormattedText:
+        commands = "  ".join(func[3:] for func in dir(Repl) if func.startswith("do_"))
+
+        help_list = [
+            ("class:blue", "—  Help —\n"),
+            ("class:yellow", "Usage:\n"),
+            ("class:white", "    1. Make sure the correct mode is selected, see: help mode\n"),
+            ("class:white", "    2. Enter an equation to be evaluated.\n"),
+            (
+                "class:white",
+                "    3. Optional: Assign result of an equation to a single letter variable.\n"
+            ),
+            (
+                "class:white",
+                "                 Variables can be used in expressions but are not saved upon exit."
+            ),
+            ("class:white", "\n                 Allowed variables: a-z, A-Z\n"),
+            ("class:yellow", "Available Operators:\n"),
+            ("class:white", f"    {' '.join(OPERATORS)}\n"),
+            ("class:yellow", "Example:\n"),
+            ("class:white", "    [ Infix ] a = ( 5 + 6 ) * 4\n"),
+            ("class:white", "    44.0\n"),
+            ("class:white", "    [ Infix ] b = 5 / 2\n"),
+            ("class:white", "    2.5\n"),
+            ("class:white", "    [ Infix ] a = a + b\n"),
+            ("class:white", "    46.5\n\n"),
+            ("class:blue", "—  Available Commands —\n"),
+            ("class:white", f"   {commands}"),
         ]
-        return Repl.HELP_MESSAGE.format(
-            operators=" ".join(OPERATORS), commands="  ".join(cmd_list)
-        )
+        return FormattedText(help_list)
+
+    @property
+    def info_string(self) -> FormattedText:
+        """Returns the info text shown at startup as a prompt_toolkit FormattedText."""
+        info_list = [
+            ("class:yellow", "Help:"),
+            ("class:white", " help | "),
+            ("class:yellow", "Current mode:"),
+            ("class:white", f" {self.mode} | "),
+            ("class:yellow", "Available operators:"),
+            ("class:white", f" {' '.join(OPERATORS)}"),
+        ]
+        return FormattedText(info_list)
 
     @property
     def mode_string(self) -> str:
@@ -207,9 +235,11 @@ class Repl:
         sys.exit(0)
 
     @staticmethod
-    def display(text: str) -> None:
-        """Displays the given text onto the screen."""
-        print_formatted_text(text)
+    def display(*args, **kwargs) -> None:
+        """Wrapper for the `print_formatted_text` prompt_toolkit function."""
+        print_formatted_text()
+        print_formatted_text(*args, **kwargs, color_depth=ColorDepth.TRUE_COLOR, style=Repl.STYLE)
+        print_formatted_text()
 
 
 def main() -> None:
