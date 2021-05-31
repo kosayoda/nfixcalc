@@ -1,19 +1,21 @@
-import cmd
+import inspect
 import re
 import sys
-from typing import List
+
+from prompt_toolkit import PromptSession
+from prompt_toolkit import print_formatted_text
 
 from nfixcalc import Mode
 from nfixcalc.calculator import OPERATORS, calc_infix, calc_postfix, calc_prefix
 from nfixcalc.errors import InvalidEquationError, InvalidVariableError
 
 
-class Repl(cmd.Cmd):
+class Repl:
     """A class for Read-Evaluate-Print-Loop equation solving functionality."""
-    intro = "Welcome to nfixcalc, eternally version 0.1.0\n"
-    prompt = "[ Infix ] "
-    ruler = ""
-    doc_header = (
+
+    INFO = "Help: help | Current mode: {mode} | Available operators: {operators}"
+    INTRO = "Welcome to nfixcalc, eternally version 0.1.0\n"
+    HELP_MESSAGE = (
         "== Help ==\n"
         "Usage:\n"
         "    1. Make sure the correct mode is selected, see: help mode\n"
@@ -22,7 +24,7 @@ class Repl(cmd.Cmd):
         "                 Variables can be used in expressions but are not saved upon exit.\n"
         "                 Allowed variables: a-z, A-Z\n"
         "Available Operators:\n"
-        f"    {' '.join(OPERATORS)}\n"
+        "    {operators}\n"
         "Example:\n"
         "    [ Infix ] a = ( 5 + 6 ) * 4\n"
         "    44.0\n"
@@ -30,42 +32,82 @@ class Repl(cmd.Cmd):
         "    2.5\n"
         "    [ Infix ] a = a + b\n"
         "    46.5\n\n"
-        "== Available Commands =="
+        "== Available Commands ==\n"
+        "   {commands}"
     )
 
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
         self.mode = Mode.INFIX
-        Repl.echo_info(self.mode)
-
         self.variables = {}
         self.EQUATION_RE = re.compile(
             # TODO: Dynamic equation regex depending on available operators
             r"\d+(?:\.\d+)?|[+\-*^()]|[\/]{1,2}|[A-z]+"
         )
 
-    def default(self, line) -> None:
-        """
-        The default action when no command is given.
+        self.session = PromptSession()
 
-        Solves the input line as if a regular equation.
-        Exits if the `cmdloop` passes "EOF".
+        Repl.display(Repl.INFO.format(mode=self.mode, operators=' '.join(OPERATORS)))
+
+    def cmdloop(self):
+        """The actual REPL."""
+        while True:
+            try:
+                line = self.session.prompt(message=self.mode_string)
+            except EOFError:
+                Repl.exit()
+            else:
+                result = self.parse_cmd(line)
+
+                if result is not None:
+                    Repl.display(result)
+
+    def parse_cmd(self, line: str) -> str:
         """
-        if line == "EOF":
-            self.do_exit()
+        Parse a given line of input into a command.
+
+        Uses the same getattr black magic as the python `cmd` library.
+        """
+        line = line.strip()
+        if not line:
+            return "\n"
+
+        command, sep, argument = line.partition(" ")
+        if command == line and sep == "" and argument == "":  # Separator not found
+            self.calculate(line)
 
         try:
-            result = self.calculate(line.strip())
-        except (InvalidEquationError, InvalidVariableError) as error:
-            self.display(error)
+            command_func = getattr(self, f"do_{command}")
+        except AttributeError:
+            return self.calculate(line)
         else:
-            self.display(result)
+            return command_func(argument)
+
+    def do_help(self, command: str) -> str:
+        """Returns the help string for a given command, or for the program."""
+        if not command:
+            return self.help_string
+
+        # Let's do more black magickery and get the help message for a command
+        # from the command function's docstring.
+        try:
+            command_func = getattr(self, f"do_{command}")
+        except AttributeError:
+            return f"Unknown command: {command}"
+        else:
+            if (documentation := inspect.getdoc(command_func)) is None:
+                return f"Sorry, no help found for command: {command}"
+            else:
+                return f"-- Help: {command} --\n{documentation}"
 
     def do_mode(self, mode: str) -> None:
-        """Switch modes based on input."""
+        """
+        Switches the mode of the calculator.
+        Available modes: Infix, Postfix, Prefix
+        """
         if not mode:
-            self.display(f"-- Current mode: {self.mode} --")
+            Repl.display(f"-- Current mode: {self.mode} --")
             return
+
         modes = {
             "Infix": Mode.INFIX,
             "Postfix": Mode.POSTFIX,
@@ -73,22 +115,30 @@ class Repl(cmd.Cmd):
         }
         try:
             self.mode = modes[mode.title()]
-            Repl.prompt = f"[{self.mode:^7}] "
         except KeyError:
             self.display("Invalid mode! Modes: Infix, Postfix, Prefix")
         else:
             self.display(f"-- Current mode: {self.mode} --")
 
-    def help_mode(self) -> None:
-        """Help command for the `mode` command."""
-        help_string = (
-            "\n-- Help: mode --\n"
-            "Switches the mode of the calculator.\n"
-            "Available modes: Infix, Postfix, Prefix\n"
-        )
-        self.display(help_string)
+    def do_clear(self, *_) -> None:
+        """Clears any variables present in the session."""
+        self.variables = {}
+        Repl.display("-- Variables cleared --")
 
-    def calculate(self, tokens: str) -> float:
+    def do_exit(self, *_) -> None:
+        """Exits the application cleanly."""
+        Repl.display("\nThanks for using nfixcalc!")
+        sys.exit(0)
+
+    def calculate(self, line: str) -> str:
+        try:
+            result = self._calculate(line)
+        except (InvalidEquationError, InvalidVariableError) as error:
+            return str(error)
+        else:
+            return str(result)
+
+    def _calculate(self, tokens: str) -> float:
         """
         Solves an equation based on the current mode.
 
@@ -124,45 +174,7 @@ class Repl(cmd.Cmd):
         except Exception:
             raise InvalidEquationError(self.mode, tokens)
 
-    # The catch-all args is because I have no idea what keeps passing a positional argument
-    def do_clear(self, *_) -> None:
-        """Clears any variables present in the session."""
-        self.variables = {}
-        self.display("-- Variables cleared --")
-
-    def help_clear(self) -> None:
-        """Help command for the `clear` command."""
-        help_string = (
-            "\n-- Help: clear --\n"
-            "Clears any variables in the session. Note: There is no confirmation\n"
-        )
-        self.display(help_string)
-
-    # The catch-all args is because I have no idea what keeps passing a positional argument
-    def do_exit(self, *_) -> None:
-        """Exits the application cleanly."""
-        self.display("\nThanks for using nfixcalc!")
-        sys.exit(0)
-
-    def help_exit(self) -> None:
-        """Help command for the `exit` command."""
-        help_string = (
-            "\n-- Help: exit --\n"
-            "Exits the calculator.\n"
-        )
-        self.display(help_string)
-
-    @staticmethod
-    def echo_info(mode: Mode) -> None:
-        """"Echoes the current mode and available operators to the screen"""
-        Repl.display(f"Help: help | Current mode: {mode} | Available operators: {' '.join(OPERATORS)}")
-
-    @staticmethod
-    def display(*args, **kwargs) -> None:
-        """Display the given text on the screen."""
-        print(*args, **kwargs)
-
-    def filter_variables(self, tokens: str) -> List[str]:
+    def filter_variables(self, tokens: str) -> list[str]:
         """
         Replaces any variables a-Z in the string with the stored value.
 
@@ -174,11 +186,36 @@ class Repl(cmd.Cmd):
             for token in self.EQUATION_RE.findall(tokens)
         ]
 
+    @property
+    def help_string(self) -> str:
+        cmd_list = [
+            func[3:] for func in dir(Repl) if func.startswith("do_")
+        ]
+        return Repl.HELP_MESSAGE.format(
+            operators=" ".join(OPERATORS), commands="  ".join(cmd_list)
+        )
+
+    @property
+    def mode_string(self) -> str:
+        """Returns the current mode is a nice representation for the prompt."""
+        return f"[{self.mode:^7}] "
+
+    @staticmethod
+    def exit() -> None:
+        """Exits the REPL."""
+        Repl.display("Thanks for using nfixcalc!")
+        sys.exit(0)
+
+    @staticmethod
+    def display(text: str) -> None:
+        """Displays the given text onto the screen."""
+        print_formatted_text(text)
+
 
 def main() -> None:
     """Function to run the REPL calculator."""
+    repl = Repl()
     try:
-        repl = Repl()
         repl.cmdloop()
     except KeyboardInterrupt:
-        repl.do_exit()
+        repl.exit()
